@@ -1,38 +1,37 @@
-const express = require('express');
-const userApi = require('./api/user');
-const postApi = require('./api/post')
-const database = require('./config/database');
+const express = require('express')
+const database = require('./config/database')
+const UserApi = require('./api/user')
+const UserRouter = require('./routes/user')
+const ProjectRouter = require('./routes/project')
+const TaskRouter = require('./routes/task')
 
-console.log('Starting server....')
 const app = express()
-app.use(express.json())
+app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send({ response: 'Hello World!' });
+    res.status(200).json({ message: 'Hello World' })
 })
-app.post('/login', userApi.login);
-app.post('/users', userApi.criarUsuario);
 
-// Aplica a validação do token para as rotas abaixo
-app.use(userApi.validarToken);
-app.get('/users', userApi.listarUsuario);
-app.put('/users/:id', userApi.alterarUsuario);
-app.delete('/users/:id', userApi.deletarUsuario);
+// Rotas sem token
+app.post('/api/login', UserApi.login)
+app.post('/api/user', UserApi.createUser)
 
-app.get('/posts', postApi.listarPosts);
-app.post('/posts', postApi.criarPost)
-app.put('/posts/:id', postApi.alterarPost);
-app.delete('/posts/:id', postApi.deletarPost);
-app.get('/posts/:id', postApi.buscarPorId);
-app.get('/posts/autor/:id', postApi.buscarPorAutor);
+// Rotas com token
+// app.use(UserApi.validateToken)
+app.use('/api/user', UserRouter)
+app.use('/api/project', ProjectRouter)
+app.use('/api/task', TaskRouter)
 
 database.db.sync({ force: false })
-    .then(() => {
-        app.listen(3000, () => {
-            console.log('Server is running on port 3000')
-        })
+    .then(_ => {
+        if (process.env.NODE_ENV !== 'test' ) {
+            app.listen(8000, _ => {
+                console.log('Server running on port 8000')
+            })
+        }
     })
-    .catch((error) => {
-        console.error('Error connecting to the database', error);
-    });
+    .catch(e => {
+        console.error(`Erro ao inicializar o banco de dados ${e}`)
+    })
 
+module.exports = app

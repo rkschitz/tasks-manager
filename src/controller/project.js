@@ -1,9 +1,15 @@
 const Project = require('../model/project');
-
+const User = require('../model/user');
 class ProjectController {
     async createProject(name, description, idUser) {
-        if (name === undefined || description === undefined || idUser === undefined) {
+        if (!name || !description || !idUser) {
             throw new Error('Nome, descrição e id do usuário são obrigatórios');
+        }
+
+        const user = await User.findByPk(idUser);
+
+        if (!user) {
+            throw new Error('Usuário não encontrado');
         }
 
         const project = await Project.create({ name, description, idUser });
@@ -25,15 +31,20 @@ class ProjectController {
         return project;
     }
 
-    async changeProject(id, name, description, idUser) {
-        if (id === undefined || name === undefined || description === undefined || idUser === undefined) {
-            throw new Error('Id, nome, descrição e id do fusuário são obrigatórios');
+    async updateProject(id, name, description, status, idUser) {
+        if (!id|| !name || !description || !status || !idUser) {
+            throw new Error('Id, nome, descrição, status e id do usuário são obrigatórios');
         }
 
         const project = await this.searchById(id);
 
+        if(!project){
+            throw new Error('Projeto não encontrado');
+        }
+
         project.name = name;
         project.description = description;
+        project.status = status;
         project.idUser = idUser;
 
         project.save();
@@ -47,6 +58,10 @@ class ProjectController {
         }
 
         const project = await this.searchById(id);
+
+        if (!project) {
+            throw new Error('Projeto não encontrado');
+        }
 
         project.destroy();
     }
@@ -66,3 +81,5 @@ class ProjectController {
     }
 
 }
+
+module.exports = new ProjectController();

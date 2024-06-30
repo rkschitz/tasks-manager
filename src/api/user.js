@@ -1,76 +1,71 @@
 const controller = require('../controller/user');
-const controllerPost = require('../controller/post');
+const controllerProject = require('../controller/project');
 
 class UserApi {
-    async criarUsuario(req, res) {
-        const nome = req.body.nome
-        const email = req.body.email;
-        const senha = req.body.senha;
+    async createUser(req, res) {
+        const {name, email, password} = req.body;
 
         try {
-            const user = await controller.criarUsuario(nome, email, senha);
+            const user = await controller.createUser(name, email, password);
             return res.status(201).send(user);
         } catch (error) {
             return res.status(400).send({ error: error.message })
         }
     }
 
-    async alterarUsuario(req, res) {
+    async updateUser(req, res) {
         const { id } = req.params;
-        const { nome, email, senha } = req.body;
+        const { name, email, password } = req.body;
 
         try {
-            const user = await controller.alterarUsuario(Number(id), nome, email, senha);
+            const user = await controller.updateUser(Number(id), name, email, password);
             return res.status(200).send(user);
         } catch (error) {
             return res.status(400).send({ error: error.message })
         }
     }
 
-    async deletarUsuario(req, res) {
+    async deleteUser(req, res) {
         const { id } = req.params;
     
-        const autorPost = await controllerPost.buscarPorAutor(Number(id))
+        const userProject = await controllerProject.searchByUser(Number(id))
 
-        if(autorPost.length > 0) {
-            return res.status(400).send({ error: 'Usuário possui posts cadastrados' })
+        if(userProject.length > 0) {
+            return res.status(400).send({ error: 'Usuário possui projetos vinculados' })
         }
 
         try {
-            await controller.deletarUsuario(Number(id));
+            await controller.deleteUser(Number(id));
             return res.status(204).send({ message: 'Usuário deletado com sucesso'});
         } catch (error) {
             return res.status(400).send({ error: error.message })
         }
     }
 
-    async listarUsuario(req, res) {
-
+    async listUsers(req, res) {
         try {
-            const users = await controller.listarUsuarios();
+            const users = await controller.listUsers();
             return res.status(200).send(users);
         } catch (error) {
             return res.status(400).send({ error: error.message })
         }
     }
 
-    // Método para login
     async login(req, res) {
         try {
-            const { email, senha } = req.body;
-            const token = await controller.login(email, senha);
+            const { email, password } = req.body;
+            const token = await controller.login(email, password);
             return res.status(200).send(token);
         } catch (error) {
             return res.status(400).send({ error: error.message })
         }
     }
 
-    // Método para validar o token
-    async validarToken(req, res, next) {
+    async validateToken(req, res, next) {
         const token = req.headers.authorization;
 
         try {
-            await controller.validarToken(token);
+            await controller.validateToken(token);
             next();
         } catch (error) {
             return res.status(400).send({ error: error.message })

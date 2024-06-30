@@ -6,7 +6,7 @@ const saltRounds = 10;
 const JWT_SECRET_KEY = 'batata';
 
 class UserController {
-    async createUser(name, email, password) {
+    async createUser(name, email, password, transaction) {
         if (
             name === undefined
             || email === undefined
@@ -17,9 +17,14 @@ class UserController {
 
         const encryptedPassword = await bcrypt.hash(password, saltRounds);
 
-        // INSERT INTO users (name, email, password) VALUES (name, email, password);
+        const newUser = {
+            name,
+            email,
+            password: encryptedPassword
+        }
+
         const user = await User
-            .create({ name, email, password: encryptedPassword });
+            .create(newUser, {transaction});
 
         return user;
     }
@@ -61,14 +66,14 @@ class UserController {
         return user;
     }
 
-    async deleteUser(id) {
+    async deleteUser(id, transaction) {
         if (id === undefined) {
             throw new Error('Id é obrigatório');
         }
 
         const user = await this.searchById(id);
 
-        user.destroy();
+        user.destroy({transaction});
     }
 
     async listUsers() {

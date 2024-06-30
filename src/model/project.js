@@ -18,7 +18,7 @@ class Post {
                 type: database.db.Sequelize.INTEGER,
                 references: {
                     model: 'users',
-                    key: 'id'
+                    key: 'idUser'
                 }
             }
         });

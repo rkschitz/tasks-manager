@@ -9,13 +9,17 @@ class User {
                 autoIncrement: true
             },
             name: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             },
             email: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false,
+                unique: true
             },
             password: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             }
         });
     }
