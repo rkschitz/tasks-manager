@@ -3,8 +3,9 @@ const request = require('supertest')
 
 describe('TaskApi', () => {
 
-        it('Criar uma task', async () => {
+        it('Editar uma task', async () => {
             const dataTest = {
+                idTask: 1,
                 title: "Task",
                 description: "Descriçao",
                 status: "Em andamento",

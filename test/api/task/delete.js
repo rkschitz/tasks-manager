@@ -3,18 +3,12 @@ const request = require('supertest')
 
 describe('TaskApi', () => {
 
-        it('Criar uma task', async () => {
-            const dataTest = {
-                title: "Task",
-                description: "Descriçao",
-                status: "Em andamento",
-                idProject: 1
-             }
+        it('Deletar uma task', async () => {
              
             const response = await request(app)
             
-            .post('/api/task')
-            .send(dataTest);
+            .delete('/api/task')
+            .send(1);
  
             expect(response.statusCode).toBe(201);
             expect(response.body.title).toEqual(dataTest.title)

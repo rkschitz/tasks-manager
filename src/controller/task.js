@@ -106,7 +106,7 @@ class TaskController {
 
     async listTasks() {
         try {
-            const tasks = await Task.findAll();
+             const tasks = await Task.findAll();
             return tasks;
         } catch (error) {
             throw new Error(error.message);
@@ -122,9 +122,10 @@ class TaskController {
 
         if (!project) {
             throw new Error('Projeto não encontrado');
-        } else {
-
-        }
+        } 
+        if (project.idUser !== currentUser) {
+            throw new Error('Usuário não autorizado');
+        } 
 
         return Task.findAll({ where: { status } });
     }

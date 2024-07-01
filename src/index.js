@@ -26,7 +26,7 @@ app.use('/api/user', UserRouter)
 app.use('/api/project', ProjectRouter)
 app.use('/api/task', TaskRouter)
 
-database.db.sync({ force: true })
+database.db.sync({ force: false })
     .then(_ => {
         if (process.env.NODE_ENV !== 'test' ) {
             app.listen(8000, _ => {
