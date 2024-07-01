@@ -43,7 +43,7 @@ class UserController {
         return user;
     }
 
-    async changeUser(id, name, email, password) {
+    async changeUser(id, name, email, password, transaction) {
         if (
             id === undefined
             || name === undefined
@@ -61,7 +61,7 @@ class UserController {
         const encryptedPassword = await bcrypt.hash(password, saltRounds);
         user.password = encryptedPassword;
 
-        user.save();
+        user.save({transaction});
 
         return user;
     }
@@ -74,6 +74,7 @@ class UserController {
         const user = await this.searchById(id);
 
         user.destroy({transaction});
+        return "Usuário deletado com sucesso"
     }
 
     async listUsers() {
@@ -97,19 +98,19 @@ class UserController {
             throw new Error('Senha inválida');
         }
 
-        const jwtToken = jwt.sign({ id: user.id }, JWT_SECRET_KEY);
+        const jwtToken = jwt.sign({ idUser: user.idUser }, JWT_SECRET_KEY);
 
         return { token: jwtToken }
     }
 
-    async validateToken(token) {
-        try {
-            const payload = jwt.verify(token, JWT_SECRET_KEY);
-            return payload;
-        } catch (error) {
-            throw new Error('Token inválido');
-        }
-    }
+    // async validateToken(token) {
+    //     try {
+    //         const payload = jwt.verify(token, JWT_SECRET_KEY);
+    //         return payload;
+    //     } catch (error) {
+    //         throw new Error('Token inválido');
+    //     }
+    // }
 }
 
 module.exports = new UserController();

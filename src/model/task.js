@@ -9,13 +9,16 @@ class User {
                 autoIncrement: true
             },
             title: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             },
             description: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             },
             status: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                defaultValue: 'Pendente'
             },
             finalDate: {
                 type: database.db.Sequelize.DATE

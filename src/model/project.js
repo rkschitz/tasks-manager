@@ -9,13 +9,16 @@ class Post {
                 autoIncrement: true
             },
             name: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             },
             description: {
-                type: database.db.Sequelize.STRING
+                type: database.db.Sequelize.STRING,
+                allowNull: false
             },
             idUser: {
                 type: database.db.Sequelize.INTEGER,
+                allowNull: false,
                 references: {
                     model: 'users',
                     key: 'idUser'

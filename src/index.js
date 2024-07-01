@@ -4,6 +4,9 @@ const UserApi = require('./api/user')
 const UserRouter = require('./routes/user')
 const ProjectRouter = require('./routes/project')
 const TaskRouter = require('./routes/task')
+const AuthMiddleware = require('./middlewares/authMiddleware')
+
+const authMiddleware = new AuthMiddleware()
 
 const app = express()
 app.use(express.json());
@@ -18,11 +21,12 @@ app.post('/api/user', UserApi.createUser)
 
 // Rotas com token
 // app.use(UserApi.validateToken)
+app.use(authMiddleware.validateToken)
 app.use('/api/user', UserRouter)
 app.use('/api/project', ProjectRouter)
 app.use('/api/task', TaskRouter)
 
-database.db.sync({ force: false })
+database.db.sync({ force: true })
     .then(_ => {
         if (process.env.NODE_ENV !== 'test' ) {
             app.listen(8000, _ => {

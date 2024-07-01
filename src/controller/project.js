@@ -1,9 +1,15 @@
+
 const Project = require('../model/project');
 const User = require('../model/user');
+
 class ProjectController {
-    async createProject(name, description, idUser) {
+    async createProject(name, description, idUser, transaction) {
         if (!name || !description || !idUser) {
             throw new Error('Nome, descrição e id do usuário são obrigatórios');
+        }
+
+        if(name.length > 255){
+            throw new Error('Nome deve ter no máximo 255 caracteres');
         }
 
         const user = await User.findByPk(idUser);
@@ -12,7 +18,7 @@ class ProjectController {
             throw new Error('Usuário não encontrado');
         }
 
-        const project = await Project.create({ name, description, idUser });
+        const project = await Project.create({ name, description, idUser }, { transaction });
 
         return project;
     }
@@ -31,9 +37,10 @@ class ProjectController {
         return project;
     }
 
-    async updateProject(id, name, description, status, idUser) {
-        if (!id|| !name || !description || !status || !idUser) {
-            throw new Error('Id, nome, descrição, status e id do usuário são obrigatórios');
+    async updateProject(id, name, description, idUser, currentUser, transaction) {
+
+        if (!id|| !name || !description || !idUser || !currentUser) {
+            throw new Error('Id, nome, descrição, id do responsável e id do usuario atual são obrigatórios');
         }
 
         const project = await this.searchById(id);
@@ -42,17 +49,20 @@ class ProjectController {
             throw new Error('Projeto não encontrado');
         }
 
+        if(project.idUser !== currentUser){
+            throw new Error('Usuário não autorizado');
+        }
+
         project.name = name;
         project.description = description;
-        project.status = status;
         project.idUser = idUser;
 
-        project.save();
+        project.save({transaction});
 
         return project;
     }
 
-    async deleteProject(id) {
+    async deleteProject(id, currentUser, transaction) {
         if (id === undefined) {
             throw new Error('Id é obrigatório');
         }
@@ -63,7 +73,13 @@ class ProjectController {
             throw new Error('Projeto não encontrado');
         }
 
-        project.destroy();
+        if(project.idUser !== currentUser){
+            throw new Error('Usuário não autorizado');
+        }
+
+        project.destroy({transaction});
+
+        return "Projeto deletado com sucesso"
     }
 
     async searchByUser(idUser) {
@@ -76,8 +92,8 @@ class ProjectController {
         return projects;
     }
 
-    async listProjects() {
-        return Project.findAll();
+    async listProjects(currentUser) {
+        return Project.findAll({where: {idUser: currentUser}});
     }
 
 }

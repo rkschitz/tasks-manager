@@ -2,20 +2,22 @@ const Task = require('../model/task');
 const Project = require('../model/project');
 
 class TaskController {
-    async createTask(title, description, idProject) {
+    async createTask(title, description, status, idProject, transaction) {
         if (!title || !description || !idProject) {
             throw new Error('Título, descrição e id do projeto são obrigatórios');
         }
 
+        if(title.length > 255) {
+            throw new Error('Título deve ter no máximo 255 caracteres');
+        }
+        
         const project = await Project.findByPk(idProject);
-
+        
         if (!project) {
             throw new Error('Projeto não encontrado');
         }
 
-        let status = 'Pendente'
-
-        const task = await Task.create({ title, description, status, idProject });
+        const task = await Task.create({ title, description, status, idProject }, { transaction });
 
         return task;
     }
@@ -34,29 +36,46 @@ class TaskController {
         return task;
     }
 
-    async updateTask(id, title, description, idProject) {
-        if (id === undefined || title === undefined || description === undefined || idProject === undefined) {
-            throw new Error('Id, título, descrição e id do projeto são obrigatórios');
+    async updateTask(id, title, description, status, idProject, finalDate, currentUser, transaction) {
+        if (!id || !title || !description || !status || !currentUser) {
+            throw new Error('Id, título, descrição, status e id do usuário são obrigatórios');
         }
 
         const task = await this.searchById(id);
 
         if (!task) {
             throw new Error('Tarefa não encontrada');
+        }
+
+        if (!idProject) {
+            throw new Error('Id do projeto é obrigatório');
+        }
+
+        const project = await Project.findByPk(idProject);
+
+        if (project.idUser !== currentUser) {
+            throw new Error('Usuário não autorizado');
+        }
+
+        function transformDate(date) {
+            const [day, month, year] = date.split('/');
+            return new Date(year, month - 1, day);
         }
 
         task.title = title;
         task.description = description;
+        task.status = status;
+        task.finalDate = transformDate(finalDate)
         task.idProject = idProject;
 
-        task.save();
+        task.save({transaction});
 
         return task;
     }
 
-    async deleteTask(id) {
-        if (id === undefined) {
-            throw new Error('Id é obrigatório');
+    async deleteTask(id, currentUser, transaction) {
+        if (!id || !currentUser) {
+            throw new Error('Id da task e id do usuário são obrigatórios');
         }
 
         const task = await this.searchById(id);
@@ -65,7 +84,15 @@ class TaskController {
             throw new Error('Tarefa não encontrada');
         }
 
-        task.destroy();
+        const project = await Project.findByPk(task.idProject);
+
+        if (project.idUser !== currentUser) {
+            throw new Error('Usuário não autorizado');
+        }
+
+        task.destroy({transaction});
+
+        return "Tarefa deletada com sucesso"
     }
 
     async searchByProject(idProject) {
@@ -73,28 +100,33 @@ class TaskController {
             throw new Error('Id do projeto é obrigatório');
         }
 
-        return Task.findAll({ where: { idProject } });
-    }
+        return Task.findAll({ where: { idProject }})
+        };
 
-    async searchByUser(idUser) {
-        if (idUser === undefined) {
-            throw new Error('Id do usuário é obrigatório');
-        }
-
-        const projects = await Project.findAll({ where: { idUser } });
-
-        const tasks = await Task.findAll({ where: { idProject: projects.map(project => project.id) } });
-
-        return tasks;
-    }
 
     async listTasks() {
-        try{
+        try {
             const tasks = await Task.findAll();
             return tasks;
-        }catch(error){
+        } catch (error) {
             throw new Error(error.message);
         }
+    }
+
+    async searchByStatus(status, currentUser) {
+        if (!status) {
+            throw new Error('Status é obrigatório');
+        }
+
+        const project = await Project.findAll({ where: { idUser: currentUser } });
+
+        if (!project) {
+            throw new Error('Projeto não encontrado');
+        } else {
+
+        }
+
+        return Task.findAll({ where: { status } });
     }
 }
 

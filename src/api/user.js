@@ -61,16 +61,16 @@ class UserApi {
         }
     }
 
-    async validateToken(req, res, next) {
-        const token = req.headers.authorization;
+    // async validateToken(req, res, next) {
+    //     const token = req.headers.authorization;
 
-        try {
-            await controller.validateToken(token);
-            next();
-        } catch (error) {
-            return res.status(400).send({ error: error.message })
-        }
-    }
+    //     try {
+    //         await controller.validateToken(token);
+    //         next();
+    //     } catch (error) {
+    //         return res.status(400).send({ error: error.message })
+    //     }
+    // }
 }
 
 module.exports = new UserApi();

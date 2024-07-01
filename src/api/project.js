@@ -15,11 +15,13 @@ class ProjectApi {
     }
 
     async updateProject(req, res) {
+        const currentUser = req.currentUser;
         const { id } = req.params;
         const { name, description, idUser } = req.body;
 
         try {
-            const project = await controller.updateProject(Number(id), name, description, idUser);
+
+            const project = await controller.updateProject(Number(id), name, description, idUser, currentUser);
             return res.status(200).send(project);
         } catch (error) {
             return res.status(400).send({ error: error.message })
@@ -27,6 +29,7 @@ class ProjectApi {
     }
 
     async deleteProject(req, res) {
+        const currentUser = req.currentUser;
         const { id } = req.params;
 
         const projectTask = await controllerTask.searchByProject(Number(id))
@@ -36,7 +39,7 @@ class ProjectApi {
         }
 
         try {
-            await controller.deleteProject(Number(id));
+            await controller.deleteProject(Number(id), currentUser);
             return res.status(204).send();
         } catch (error) {
             return res.status(400).send({ error: error.message })
@@ -44,8 +47,9 @@ class ProjectApi {
     }
 
     async listProjects(req, res) {
+        const currentUser = req.currentUser;
         try {
-            const projects = await controller.listProjects();
+            const projects = await controller.listProjects(currentUser);
             return res.status(200).send(projects);
         } catch (error) {
             return res.status(400).send({ error: error.message })

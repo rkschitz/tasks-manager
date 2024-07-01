@@ -1,5 +1,6 @@
 const service = require('../../../src/controller/user')
-const conexao = require('../../../src/config/database')
+const conexao = require('../../../src/config/database');
+const e = require('express');
 
 describe("Excluir pessoa", () => {
 
@@ -11,10 +12,12 @@ describe("Excluir pessoa", () => {
       this.transaction.rollback();
    })
 
-   test("Adicionar uma pessoa", async () => {
+   test("Deletar uma pessoa", async () => {
 
-      const { dataValues } = await service.deleteUser(1, this.transaction);
-      expect(dataValues.name).toBe(dataTest.name)
-      expect(dataValues.email).toBe(dataTest.email)
+   
+
+      const request = await service.deleteUser(1, this.transaction);
+      expect(request).toBe("Usuário deletado com sucesso");
+      
    })
 })
