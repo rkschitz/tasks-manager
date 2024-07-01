@@ -3,9 +3,6 @@ const request = require('supertest')
 
 describe('UserApi', () => {
 
-    afterAll(async () => {
-
-    })
         it('should create a user', async () => {
             const user = {
                 name: 'Ruhan',
@@ -13,6 +10,7 @@ describe('UserApi', () => {
                 password: '12345'
             }
             const response = await request(app)
+            
             .post('/api/user')
             .send(user);
  

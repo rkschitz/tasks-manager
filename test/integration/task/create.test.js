@@ -19,7 +19,6 @@ describe("Criar uma Task", () => {
          idProject: 1
       }
       
-
       const { dataValues } = await service.createTask(dataTest.title, dataTest.description, dataTest.status, dataTest.idProject, this.transaction)
 
       expect(dataValues.title).toBe(dataTest.title)
